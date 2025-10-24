@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Demande du nom des joueurs
+void NomJoueur(char nom[], int num) {
+    printf("Joueur %d, entrez votre nom : ",num);
+    fgets(nom, 50, stdin);
+    printf("Bonjour %s\n",nom);
+}
+
+// Fonction de détection de fin de jeu pour les deux joueurs
+bool fin_jeu1(int Scorj1) {return Scorj1 == 40;}
+bool fin_jeu2(int Scorj2) {return Scorj2 == 60;}
+
+// Fonction de détection de dépassement du score autorisé
+int trop_loin1(int Scor, int resul) {
+    if (Scor > 40) {
+        return (Scor - resul);
+    } else {
+        return Scor;
+    }
+}
+int trop_loin2(int Scor, int resul) {
+    if (Scor > 60) {
+        return (Scor - resul);
+    } else {
+        return Scor;
+    }
+}
+
+
+// Fonction de lancement de dé
+int lance_de(void) {
+    int De[6] = {1, 2, 3, 4, 5, 6};
+    int index = rand() % 6;
+    return De[index];
+}
+
+//Fonction 2 joueurs sur une même case, return true sinon false
+bool meme_case_que_1(int Scorj1, int Scorj2) {return Scorj1 == 20 + Scorj2;} // joueur1 rattape joueur2
+bool meme_case_que_2(int Scorj1, int Scorj2) {return Scorj2 == 20 + Scorj1;} // joueur2 rattape joueur1
+
+
+
+// Fonction main
+int main(void) {
+    char nom1[50];
+    char nom2[50];
+    int Scorj1 = 0;
+    int Scorj2 = 20;
+    NomJoueur(nom1, 1);
+    NomJoueur(nom2, 2);
+    srand(time(NULL));
+
+
+    while (!fin_jeu1(Scorj1) && !fin_jeu2(Scorj2)) {
+        // Tour joueur 1
+        int resultat = lance_de();
+        printf("%s lance le de : %d\n",nom1,resultat);
+        Scorj1 += resultat;
+        Scorj1 = trop_loin1(Scorj1, resultat);
+        if (meme_case_que_1(Scorj1, Scorj2)) {
+            resultat = lance_de();
+            printf("%s relance le de : %d\n",nom1,resultat);
+            Scorj1 += resultat;
+            Scorj1 = trop_loin1(Scorj1, resultat);
+        }
+        // Tour joueur 2
+        resultat = lance_de();
+        printf("%s lance le de : %d\n",nom2,resultat);
+        Scorj2 += resultat;
+        Scorj2 = trop_loin2(Scorj2, resultat);
+        if (meme_case_que_2(Scorj1, Scorj2)) {
+            resultat = lance_de();
+            printf("%s relance le de : %d\n",nom2,resultat);
+            Scorj2 += resultat;
+            Scorj2 = trop_loin2(Scorj2, resultat);
+        }
+        printf("Scores : %s = %d, %s = %d\n",nom1,Scorj1, nom2,Scorj2);
+    }
+    if (fin_jeu1(Scorj1)) {
+        printf("Bravo %s, tu as gagne !\n",nom1);
+    } else {
+        printf("Bravo %s, tu as gagne !\n",nom2);
+    }
+    return 0;
+}
